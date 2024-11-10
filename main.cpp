@@ -20,3 +20,16 @@ private:
 	int length;					//length
 	SnakeNode node[MAXLEN];		//node of snake    
 };
+
+
+//class of food
+class Food
+{
+	friend class Snake;         //snake is friend function of food
+public:
+	Food(Snake snake);			//initialization
+	void Draw();				//draw the food
+private:
+	int x, y;					//coordinate of food
+	int score;					//score
+};

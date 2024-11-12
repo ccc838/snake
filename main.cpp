@@ -1,5 +1,5 @@
 
-#define MAXLEN 1600             //max length of snake
+#define MAXLEN 1600             //max length of snake //   cases pour le snake et les pommes
 typedef struct {
 	int x;
 	int y;
@@ -16,7 +16,8 @@ public:
 	bool Eat(Food food);	    //eat
 	bool Defeat();				//judgement of fail
 private:
-	int dirt;					//direction
+	int dirtx;					//direction suivant x
+	int dirty                   //direction suivant y
 	int length;					//length
 	SnakeNode node[MAXLEN];		//node of snake    
 };
@@ -33,3 +34,7 @@ private:
 	int x, y;					//coordinate of food
 	int score;					//score
 };
+
+
+
+

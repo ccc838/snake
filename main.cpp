@@ -1,40 +1,45 @@
+#include "Screen.hpp"
 
-#define MAXLEN 1600             //max length of snake //   cases pour le snake et les pommes
-typedef struct {
-	int x;
-	int y;
-}SnakeNode;
+int main() {
+    // Créer l'écran et initialiser le jeu
+    Screen screen;
+    if (!screen.init()) {
+        std::cout << "Erreur d'initialisation SDL" << std::endl;
+        return 1;
+    }
 
-//class of snake
-class Snake
-{
-	friend class Food;          //food is friend function of snake
-public:
-	Snake();					//initialization
-	void Move();				//move
-	void Draw();				//draw the snake
-	bool Eat(Food food);	    //eat
-	bool Defeat();				//judgement of fail
-private:
-	int dirtx;					//direction suivant x
-	int dirty                   //direction suivant y
-	int length;					//length
-	SnakeNode node[MAXLEN];		//node of snake    
-};
+    SnakeHead snake(00, 00); // Position initiale de la tête du serpent
+    bool quit = false;
 
+    // Boucle principale du jeu
+    while (!quit) {
+        // Traiter les événements
+        quit = !screen.processEvents();
 
-//class of food
-class Food
-{
-	friend class Snake;         //snake is friend function of food
-public:
-	Food(Snake snake);			//initialization
-	void Draw();				//draw the food
-private:
-	int x, y;					//coordinate of food
-	int score;					//score
-};
+        // Gérer les directions avec les touches du clavier
+        const Uint8* keystate = SDL_GetKeyboardState(NULL);
+        if (keystate[SDL_SCANCODE_UP]) {
+            snake.setDirection(0, -1); // Déplacement vers le haut
+        } else if (keystate[SDL_SCANCODE_DOWN]) {
+            snake.setDirection(0, 1); // Déplacement vers le bas
+        } else if (keystate[SDL_SCANCODE_LEFT]) {
+            snake.setDirection(-1, 0); // Déplacement vers la gauche
+        } else if (keystate[SDL_SCANCODE_RIGHT]) {
+            snake.setDirection(1, 0); // Déplacement vers la droite
+        }
 
+        // Mettre à jour la position de la tête du serpent
+        snake.update(); // Utilisation de la méthode update avec le contrôle du temps
 
+        // Effacer l'écran et rendre les nouvelles positions
+        screen.clear();
+        snake.render(screen.getRenderer());
+        screen.render();
 
+        SDL_Delay(10); // Délai pour limiter l'utilisation du CPU
+    }
 
+    // Fermer le jeu et libérer les ressources
+    screen.close();
+    return 0;
+}

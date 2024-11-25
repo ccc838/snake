@@ -1,28 +1,23 @@
 #include "Food.hpp"
-#include <SDL2/SDL.h>
+#include <cstdlib>  // Pour rand() et srand()
+#include <ctime>    // Pour srand()
 
-// Constructeur de la classe Food, initialise l'état de la nourriture Food类的构造函数，初始化食物状态
-Food::Food(int size, int width, int height) : m_position(Case(size, 0, 0)), m_exists(false) {
-    spawn(size, width, height);
+Food::Food() {
+    // Initialiser la position de la nourriture
+    srand(static_cast<unsigned>(time(0))); // Initialisation de rand()
 }
 
-// Génère de la nourriture 生成食物
-void Food::spawn(int size, int width, int height) {
-    m_position = Case(size, rand() % (width / size) * size, rand() % (height / size) * size);
-    m_exists = true;
+
+
+void Food::spawn(int screenWidth, int screenHeight) {
+    // Positionner la nourriture à une position aléatoire
+    m_x = rand() % (screenWidth / SIZE) * SIZE;
+    m_y = rand() % (screenHeight / SIZE) * SIZE;
 }
 
-// Supprime la nourriture 移除食物
-void Food::remove() {
-    m_exists = false;
-}
-
-// Obtenir la position de la nourriture 获取食物的位置
-Case Food::getPosition() {
-    return m_position;
-}
-
-// Vérifier si la nourriture existe 检查食物是否存在
-bool Food::exists() {
-    return m_exists;
+void Food::render(SDL_Renderer* renderer) {
+    // Dessiner la nourriture à sa position
+    SDL_Rect rect = { m_x, m_y, SIZE, SIZE };
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Couleur rouge pour la nourriture
+    SDL_RenderFillRect(renderer, &rect);
 }

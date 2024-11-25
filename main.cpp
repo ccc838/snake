@@ -1,45 +1,62 @@
 #include "Screen.hpp"
+#include "Snake.hpp"
+#include "Food.hpp"
+#include <SDL2/SDL.h>
 
 int main() {
-    // Créer l'écran et initialiser le jeu
     Screen screen;
     if (!screen.init()) {
-        std::cout << "Erreur d'initialisation SDL" << std::endl;
-        return 1;
+        return -1;
     }
 
-    SnakeHead snake(00, 00); // Position initiale de la tête du serpent
-    bool quit = false;
+    Snake snake(100, 100); // Le serpent commence à (100, 100)
+    Food food;             // Création de la nourriture
+    food.spawn(640, 480);  // Positionnement initial de la nourriture
+
+    bool running = true;
+    SDL_Event event;
 
     // Boucle principale du jeu
-    while (!quit) {
-        // Traiter les événements
-        quit = !screen.processEvents();
+    while (running) {
+        // Gérer les événements (entrées clavier et autres)
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false; // Fermer le jeu si l'utilisateur quitte
+            }
 
-        // Gérer les directions avec les touches du clavier
-        const Uint8* keystate = SDL_GetKeyboardState(NULL);
-        if (keystate[SDL_SCANCODE_UP]) {
-            snake.setDirection(0, -1); // Déplacement vers le haut
-        } else if (keystate[SDL_SCANCODE_DOWN]) {
-            snake.setDirection(0, 1); // Déplacement vers le bas
-        } else if (keystate[SDL_SCANCODE_LEFT]) {
-            snake.setDirection(-1, 0); // Déplacement vers la gauche
-        } else if (keystate[SDL_SCANCODE_RIGHT]) {
-            snake.setDirection(1, 0); // Déplacement vers la droite
+            // Passer l'événement au serpent pour gérer les touches
+            snake.handleInput(event);
         }
 
-        // Mettre à jour la position de la tête du serpent
-        snake.update(); // Utilisation de la méthode update avec le contrôle du temps
-
-        // Effacer l'écran et rendre les nouvelles positions
+        // Effacer l'écran
         screen.clear();
+
+        // Déplacer le serpent
+        snake.move();
+
+        // Vérifier si le serpent mange la nourriture
+        if (snake.eatFood(food)) {
+            // La nourriture a été mangée, générer une nouvelle nourriture
+            food.spawn(640, 480);  // Remplacer la position de la nourriture
+        }
+
+        // Vérifier les collisions (si le serpent se mord la queue)
+        if (snake.checkCollision()) {
+            running = true; // Fin du jeu si collision
+        }
+
+        // Afficher le serpent et la nourriture
         snake.render(screen.getRenderer());
+        food.render(screen.getRenderer());
+
+        // Afficher à l'écran
         screen.render();
 
-        SDL_Delay(10); // Délai pour limiter l'utilisation du CPU
+        // Délai pour ralentir le jeu et avoir une animation fluide
+        SDL_Delay(100);
     }
 
-    // Fermer le jeu et libérer les ressources
+    // Fermer SDL et nettoyer
     screen.close();
     return 0;
 }

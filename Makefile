@@ -1,20 +1,35 @@
+# Variables de compilation
 CXX = g++
-CXXFLAGS = `sdl2-config --cflags --libs`
+CXXFLAGS = -Wall -Wextra -std=c++17 -g -I/usr/include/SDL2 -D_REENTRANT
+LDFLAGS = -lSDL2
 
-# Programmes à générer
-PROGS = main
+# Fichiers sources
+SRC_FILES = main.cpp Screen.cpp Snake.cpp Food.cpp
 
-# Compilation principale
-all: $(PROGS)
+# Fichiers objets
+OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
-main: main.o Screen.o
-	$(CXX) -o $@ $^ $(CXXFLAGS)
+# Nom de l'exécutable
+EXEC = main
 
-main.o: main.cpp Screen.hpp
-	$(CXX) -c $< $(CXXFLAGS)
+# Cible par défaut (compiler l'exécutable)
+all: $(EXEC)
 
-Screen.o: Screen.cpp Screen.hpp
-	$(CXX) -c $< $(CXXFLAGS)
+# Règle pour l'exécutable
+$(EXEC): $(OBJ_FILES)
+	$(CXX) $(OBJ_FILES) -o $(EXEC) $(LDFLAGS)
 
+# Règle pour compiler les fichiers .cpp en .o
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Nettoyer les fichiers objets et l'exécutable
 clean:
-	rm -f *.o $(PROGS)
+	rm -f $(OBJ_FILES) $(EXEC)
+
+# Cible pour nettoyer et reconstruire
+rebuild: clean all
+
+# Cible pour exécuter le programme après la compilation
+run: $(EXEC)
+	./$(EXEC)

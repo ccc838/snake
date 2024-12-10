@@ -1,35 +1,39 @@
-# Variables de compilation
+# 指定编译器
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -g -I/usr/include/SDL2 -D_REENTRANT
-LDFLAGS = -lSDL2
+# SDL库的路径
+SDLDIR = SDL2-2.26.5-mingw32/x86_64-w64-mingw32
+# 编译器标志
+CXXFLAGS = -I $(SDLDIR)/include -L $(SDLDIR)/lib -lmingw32 -lSDL2main -lSDL2 -O2
 
-# Fichiers sources
-SRC_FILES = main.cpp Screen.cpp Snake.cpp Food.cpp
 
-# Fichiers objets
-OBJ_FILES = $(SRC_FILES:.cpp=.o)
+# 默认目标
+all: main clean
 
-# Nom de l'exécutable
-EXEC = main
+# 主程序的依赖和链接
+main: main.o Screen.o Case.o Food.o Snake.o Game.o
+	$(CXX) -o $@ $^ $(CXXFLAGS)
 
-# Cible par défaut (compiler l'exécutable)
-all: $(EXEC)
+# 各个对象文件的编译规则
+main.o: main.cpp Screen.hpp Case.hpp Food.hpp Snake.hpp Game.hpp
+	$(CXX) -c $< $(CXXFLAGS)
 
-# Règle pour l'exécutable
-$(EXEC): $(OBJ_FILES)
-	$(CXX) $(OBJ_FILES) -o $(EXEC) $(LDFLAGS)
+Game.o: Game.cpp Game.hpp Snake.hpp Food.hpp Case.hpp
+	$(CXX) -c $< $(CXXFLAGS)
 
-# Règle pour compiler les fichiers .cpp en .o
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+Snake.o: Snake.cpp Snake.hpp Case.hpp
+	$(CXX) -c $< $(CXXFLAGS)	
 
-# Nettoyer les fichiers objets et l'exécutable
+Food.o: Food.cpp Food.hpp Case.hpp
+	$(CXX) -c $< $(CXXFLAGS)
+
+Screen.o: Screen.cpp Screen.hpp
+	$(CXX) -c $< $(CXXFLAGS)
+
+Case.o: Case.cpp Case.hpp
+	$(CXX) -c $< $(CXXFLAGS)
+
+
+
+# 清理生成的文件
 clean:
-	rm -f $(OBJ_FILES) $(EXEC)
-
-# Cible pour nettoyer et reconstruire
-rebuild: clean all
-
-# Cible pour exécuter le programme après la compilation
-run: $(EXEC)
-	./$(EXEC)
+	del /F *.o

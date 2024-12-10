@@ -1,74 +1,72 @@
 #include "Snake.hpp"
-#include "Food.hpp"
 #include <SDL2/SDL.h>
 
-Snake::Snake(int startX, int startY) {
-    m_dx = 1; // Déplacement initial vers la droite
-    m_dy = 0; // Pas de mouvement vertical
-    m_body.push_back({startX, startY});  // La tête du serpent
+
+// Constructeur, initialise la position de la tête du serpent, sa vitesse et sa longueur 构造函数，初始化蛇的头部位置,速度和身体长度
+Snake::Snake(int size, int startX, int startY, int moveInterval)
+    : m_vx(0), m_vy(0), m_lastMoveTime(SDL_GetTicks()), m_moveInterval(moveInterval) {
+    // Initialisation du corps du serpent, longueur initiale de 3 初始化蛇的身体，初始长度为3
+    m_body.push_back(Case(size, startX, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50})); // Tête 头部
+    m_body.push_back(Case(size, startX - size, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50})); // Second segment 第二节身体
+    m_body.push_back(Case(size, startX - 2 * size, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50})); // Troisième segment 第三节身体
 }
 
-void Snake::move() {
-    // Déplacer la tête du serpent
-    Case newHead = m_body[0];
-    newHead.x += m_dx * 10;  // Déplacer en fonction de la direction
-    newHead.y += m_dy * 10;
-
-    // Déplacer le corps
-    m_body.insert(m_body.begin(), newHead); // Ajouter la nouvelle tête au début
-
-    // Supprimer la queue (le dernier segment) si le serpent n'a pas mangé
-    m_body.pop_back();
+// Définit la direction de déplacement du serpent 设置蛇的移动方向
+void Snake::setDirection(int vx, int vy) {
+    // Limitation : le serpent ne peut pas faire un mouvement direct dans l'inverse 限制蛇不能直接反向移动
+    if ((m_vx == 0 && vy == 0) || (m_vy == 0 && vx == 0)) {
+        m_vx = vx;
+        m_vy = vy;
+    }
 }
 
+// Met à jour la position du serpent 更新蛇的位置
+void Snake::update() {
+    Uint32 currentTime = SDL_GetTicks();
+    if (currentTime - m_lastMoveTime >= m_moveInterval) {
+        // Calcul de la nouvelle position de la tête 计算新头部的位置
+        int newHeadX = m_body.front().getX() + m_vx;
+        int newHeadY = m_body.front().getY() + m_vy;
+
+        // Création d'un nouvel objet Case pour la tête 创建新的头部Case对象
+        Case newHead(m_body.front().getSize(), newHeadX, newHeadY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50});
+        // Suppression de la dernière partie du corps, conservant la longueur du corps invariable 将新头部插入到身体的开始位置
+        m_body.insert(m_body.begin(), newHead);
+
+        // 移除身体的最后部分，保持身体长度不变
+        m_body.pop_back();
+
+        // Mise à jour de l'heure du dernier mouvement 更新上次移动时间
+        m_lastMoveTime = currentTime;
+    }
+}
+
+// Afficher le serpent 渲染蛇
 void Snake::render(SDL_Renderer* renderer) {
-    // Dessiner chaque segment du serpent
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Vert pour le serpent
-    for (const Case& part : m_body) {
-        SDL_Rect rect = { part.x, part.y, 10, 10 };
-        SDL_RenderFillRect(renderer, &rect);
+    for (Case part : m_body) {
+        part.render(renderer);
     }
 }
 
-bool Snake::eatFood(Food& food) {
-    // Vérifier si la tête du serpent touche la nourriture
-    if (m_body[0].x == food.getX() && m_body[0].y == food.getY()) {
-        grow();  // Faire grandir le serpent
-        return true;
-    }
-    return false;
+// Obtenir le corps du serpent 获取蛇的身体
+vector<Case> Snake::getBody() {
+    return m_body;
 }
 
-bool Snake::checkCollision() {
-    // Vérifier si le serpent se mord lui-même
-    for (size_t i = 1; i < m_body.size(); ++i) {
-        if (m_body[i].x == m_body[0].x && m_body[i].y == m_body[0].y) {
-            return true;
-        }
-    }
-    return false;
+// Obtenir la position de la tête du serpent 获取蛇头的位置
+Case& Snake::getHeadPosition() {
+    return m_body.front();
 }
 
-void Snake::handleInput(SDL_Event& event) {
-    if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-            case SDLK_UP:
-                setDirection(0, -1);
-                break;
-            case SDLK_DOWN:
-                setDirection(0, 1);
-                break;
-            case SDLK_LEFT:
-                setDirection(-1, 0);
-                break;
-            case SDLK_RIGHT:
-                setDirection(1, 0);
-                break;
-        }
-    }
+// Obtenir la longueur du corps du serpent 获取蛇的身体长度
+int Snake::getBodyLength() const {
+    return static_cast<int>(m_body.size());
 }
 
+// Faire grandir le serpent 使蛇变长
 void Snake::grow() {
-    // Ajouter un segment à la fin du serpent
-    m_body.push_back(m_body.back());
+    // Obtenir la position de la queue du serpent 获取蛇尾的位置
+    Case tail = m_body.back();
+    // Ajouter un nouveau segment à la queue du serpent 在蛇的尾部添加一个新的部分
+    m_body.push_back(tail);
 }

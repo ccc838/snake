@@ -1,60 +1,26 @@
 #include "Screen.hpp"
 
-bool Screen::init() {
-    // Initialisation de SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cout << "Erreur lors de l'initialisation de SDL: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    // Création de la fenêtre
-    m_window = SDL_CreateWindow("Winner_Groupe_Of_Anaconda", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+// Constructeur, initialise la fenêtre et le renderer 构造函数，初始化窗口和渲染器
+Screen::Screen(const char* title, int width, int height) {
+    SDL_Init(SDL_INIT_VIDEO);  // Initialisation du sous-système vidéo SDL 初始化SDL视频子系统
+    m_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);  // Création de la fenêtre 创建窗口
     if (m_window == nullptr) {
-        std::cout << "Problème avec la création de la fenêtre: " << SDL_GetError() << std::endl;
-        SDL_Quit();
-        return false;
+        // Si la création de la fenêtre échoue, afficher un message d'erreur et quitter le programme 如果窗口创建失败，输出错误信息并退出程序
+        SDL_Log("Unable to create window: %s", SDL_GetError());
+        exit(1);
     }
-
-    // Création du renderer
-    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC);
+    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);  // Création du renderer 创建渲染器
     if (m_renderer == nullptr) {
-        std::cout << "Erreur lors de la création du renderer: " << SDL_GetError() << std::endl;
+        // Si la création du renderer échoue, afficher un message d'erreur et quitter le programme 如果渲染器创建失败，输出错误信息并退出程序
+        SDL_Log("Unable to create renderer: %s", SDL_GetError());
         SDL_DestroyWindow(m_window);
-        SDL_Quit();
-        return false;
+        exit(1);
     }
-
-    return true;
 }
 
-void Screen::close() {
-    // Nettoyer et fermer SDL
-    if (m_renderer != nullptr) {
-        SDL_DestroyRenderer(m_renderer);
-    }
-    if (m_window != nullptr) {
-        SDL_DestroyWindow(m_window);
-    }
-    SDL_Quit();
-}
-
-void Screen::clear() {
-    // Effacer l'écran avec une couleur noire
-    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // Noir
-    SDL_RenderClear(m_renderer);
-}
-
-void Screen::render() {
-    // Afficher à l'écran
-    SDL_RenderPresent(m_renderer);
-}
-
-bool Screen::processEvents(SDL_Event& event) {
-    // Traiter les événements (par exemple, si l'utilisateur ferme la fenêtre)
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            return false; // Retourne false si la fenêtre est fermée
-        }
-    }
-    return true;
+// Destructeur, libère les ressources 析构函数，释放资源
+Screen::~Screen() {
+    SDL_DestroyRenderer(m_renderer);  // Destruction du renderer 销毁渲染器
+    SDL_DestroyWindow(m_window);  // Destruction de la fenêtre 销毁窗口
+    SDL_Quit();  // Quitter SDL 退出SDL
 }

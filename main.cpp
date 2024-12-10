@@ -1,62 +1,59 @@
 #include "Screen.hpp"
-#include "Snake.hpp"
+#include "Game.hpp"
 #include "Food.hpp"
-#include <SDL2/SDL.h>
+#include "Snake.hpp"
+#include "Case.hpp"
 
-int main() {
-    Screen screen;
-    if (!screen.init()) {
-        return -1;
-    }
+int main(int argc, char* args[]) {
+    const int SCREEN_WIDTH = 640;  // Largeur de l'écran 屏幕宽度
+    const int SCREEN_HEIGHT = 480;  // Hauteur de l'écran 屏幕高度
+    const int CELL_SIZE = 20;  // Taille de chaque case 每个格子的大小
+    const int moveInterval = 100; // Fréquence de mise à jour(vitesse de déplacement) 更新频率（移动速度）
 
-    Snake snake(100, 100); // Le serpent commence à (100, 100)
-    Food food;             // Création de la nourriture
-    food.spawn(640, 480);  // Positionnement initial de la nourriture
+    // Créer un objet écran 创建屏幕对象
+    Screen screen("Game Snake", SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    bool running = true;
-    SDL_Event event;
+    // Créer un objet jeu 创建游戏对象
+    Game game(CELL_SIZE, SCREEN_WIDTH , SCREEN_HEIGHT , moveInterval);
 
-    // Boucle principale du jeu
-    while (running) {
-        // Gérer les événements (entrées clavier et autres)
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false; // Fermer le jeu si l'utilisateur quitte
+    bool quit = false;  // Indicateur de sortie 退出标志
+    SDL_Event e;  // Objet événement 事件对象
+    game.getSnake().setDirection(CELL_SIZE , 0); // Définir la direction de déplacement initiale 设置初始移动方向
+
+    // Boucle principale du jeu 游戏主循环
+    while (!quit) {
+        // Gérer les événements 处理事件
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                quit = true;  // Gérer l'événement de sortie 处理退出事件
+            } else {
+                game.handleEvent(e);  // Gérer les autres événements 处理其他事件
             }
-
-            // Passer l'événement au serpent pour gérer les touches
-            snake.handleInput(event);
         }
 
-        // Effacer l'écran
-        screen.clear();
+        // Mettre à jour l'état du jeu 更新游戏状态
+        game.update();
 
-        // Déplacer le serpent
-        snake.move();
 
-        // Vérifier si le serpent mange la nourriture
-        if (snake.eatFood(food)) {
-            // La nourriture a été mangée, générer une nouvelle nourriture
-            food.spawn(640, 480);  // Remplacer la position de la nourriture
+        // Afficher le jeu 渲染游戏
+        SDL_SetRenderDrawColor(screen.getRenderer(), 0, 0, 0, 255);  // Définir la couleur de rendu noire 设置渲染颜色为黑色
+        SDL_RenderClear(screen.getRenderer());  // Nettoyer l'écran 清除屏幕
+        game.render(screen.getRenderer());  // Afficher les objets du jeu 渲染游戏对象
+        SDL_RenderPresent(screen.getRenderer());  // Montrer le résultat du rendu 显示渲染结果
+
+        
+        // Déterminer si le jeu est terminé par méthode exception 通过exception方法判断游戏是否结束
+        try {
+        if (game.isGameOver()) {
+            throw exception();
         }
-
-        // Vérifier les collisions (si le serpent se mord la queue)
-        if (snake.checkCollision()) {
-            running = true; // Fin du jeu si collision
+        } catch (exception& e) {
+        // Afficher un message de fin de jeu 显示游戏结束的消息
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game Over", "Game Over!", screen.getWindow());
+        quit = true;
         }
-
-        // Afficher le serpent et la nourriture
-        snake.render(screen.getRenderer());
-        food.render(screen.getRenderer());
-
-        // Afficher à l'écran
-        screen.render();
-
-        // Délai pour ralentir le jeu et avoir une animation fluide
-        SDL_Delay(100);
+    
     }
 
-    // Fermer SDL et nettoyer
-    screen.close();
     return 0;
 }

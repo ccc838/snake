@@ -3,15 +3,16 @@
 #include "Food.hpp"
 #include "Snake.hpp"
 #include "Case.hpp"
+#include <iostream>
 
-int main(int argc, char* args[]) {
+int main() {
     const int SCREEN_WIDTH = 640;  // Largeur de l'écran 屏幕宽度
     const int SCREEN_HEIGHT = 480;  // Hauteur de l'écran 屏幕高度
     const int CELL_SIZE = 20;  // Taille de chaque case 每个格子的大小
     const int moveInterval = 100; // Fréquence de mise à jour(vitesse de déplacement) 更新频率（移动速度）
 
     // Créer un objet écran 创建屏幕对象
-    Screen screen("Game Snake", SCREEN_WIDTH, SCREEN_HEIGHT);
+    Screen screen("Snake Game", SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // Créer un objet jeu 创建游戏对象
     Game game(CELL_SIZE, SCREEN_WIDTH , SCREEN_HEIGHT , moveInterval);
@@ -42,18 +43,23 @@ int main(int argc, char* args[]) {
         SDL_RenderPresent(screen.getRenderer());  // Montrer le résultat du rendu 显示渲染结果
 
         
-        // Déterminer si le jeu est terminé par méthode exception 通过exception方法判断游戏是否结束
-        try {
-        if (game.isGameOver()) {
+        // Déterminer si le jeu est terminé 判断游戏是否结束
+        try
+        {
+          if(game.isGameOver())  
+          {
             throw exception();
+          }
         }
-        } catch (exception& e) {
-        // Afficher un message de fin de jeu 显示游戏结束的消息
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game Over", "Game Over!", screen.getWindow());
-        quit = true;
+        catch(const std::exception& e)
+        {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game Over", "Game Over!", screen.getWindow());
+            quit=true;
         }
-    
+        
+        
     }
 
     return 0;
 }
+

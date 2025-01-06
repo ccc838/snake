@@ -18,6 +18,9 @@ Screen::Screen(const char* title, int width, int height) {
     }
 }
 
+
+
+
 // Destructeur, libère les ressources 析构函数，释放资源
 Screen::~Screen() {
     SDL_DestroyRenderer(m_renderer);  // Destruction du renderer 销毁渲染器

@@ -1,13 +1,26 @@
 #include "Game.hpp"
 
 // Constructeur, initialise le jeu 构造函数，初始化游戏
-Game::Game(int size, int width, int height, int moveInterval) : m_width(width), m_height(height), m_casesize(size), m_snake(size, width/size/2 *size , height/size/2 *size , moveInterval), m_food(size, width, height), m_gameOver(false) {
+Game::Game(int size, int width, int height) : m_width(width), m_height(height), m_casesize(size), m_moveInterval({150,125,100,75,50}), m_snake(size, width/size/2 *size , height/size/2 *size , m_moveInterval[0]), m_food(size, width, height), m_pause(false), m_gameOver(false) {
 }
 
 // Obtenir l'objet Snake 获取蛇对象
 Snake& Game::getSnake() {
     return m_snake;
 }
+
+
+// Gérer la pause 处理暂停
+void Game::handlePause(SDL_Event& e) {
+    if (e.type == SDL_KEYDOWN) {
+        switch (e.key.keysym.sym) {
+            case SDLK_SPACE:
+                m_pause = !m_pause; // Lancer une exception de pause 抛出暂停异常
+                break;
+        }
+    }
+}
+
 
 // Mettre à jour le traitement des événements du jeu 更新游戏事件处理
 void Game::handleEvent(SDL_Event& e) {
@@ -25,9 +38,11 @@ void Game::handleEvent(SDL_Event& e) {
             case SDLK_RIGHT:
                 m_snake.setDirection(m_casesize, 0);  // Se déplacer à droite 向右移动
                 break;
+
         }
     }
 }
+
 
 // Mettre à jour l'état du jeu 更新游戏状态
 void Game::update() {
@@ -66,12 +81,27 @@ void Game::update() {
         for (size_t i = 1; i < m_snake.getBodyLength(); ++i) {
             if (m_snake.getHeadPosition() == m_snake.getBody()[i]) {
                 m_gameOver = true;
+                throw ExceptioneatBody();  // Si le serpent se mord la queue, alors une erreur est générée 若蛇咬到自己，则产生报错信息
             }
         }
     }
 
+    // Augmenter la vitesse du serpent 增加蛇的速度
+    if (m_snake.getBodyLength() == 6) {
+        getSnake().setMoveInterval(m_moveInterval[1]);
+    }else if (m_snake.getBodyLength() == 10) {
+        getSnake().setMoveInterval(m_moveInterval[2]);
+    }else if (m_snake.getBodyLength() == 15) {
+        getSnake().setMoveInterval(m_moveInterval[3]);
+    }else if (m_snake.getBodyLength() == 25) {
+        getSnake().setMoveInterval(m_moveInterval[4]);
+    }
 }
 
+// Obtenir la liste des intervalles de déplacement 获取移动间隔列表
+vector<int> Game::getm_moveInterval(){
+    return m_moveInterval;
+};
 
 // Afficher le jeu 渲染游戏
 void Game::render(SDL_Renderer* renderer) {
@@ -80,6 +110,15 @@ void Game::render(SDL_Renderer* renderer) {
 }
 
 // Vérifier si le jeu est terminé 检查游戏是否结束
+bool Game::isPause() { 
+    return m_pause; 
+}
+
+// Vérifier si le jeu est terminé 检查游戏是否结束
 bool Game::isGameOver() { 
     return m_gameOver; 
 }
+
+
+
+

@@ -37,6 +37,12 @@ public:
 
     // Faire grandir le serpent 使蛇变长
     void grow();
+
+    // Obtenir la vitesse du serpent 获得蛇的速度
+    int getMoveInterval();
+
+    // Modifier la vitesse du serpent 修改蛇的速度
+    void setMoveInterval(int moveInterval);
 };
 
 #endif // SNAKE_HPP

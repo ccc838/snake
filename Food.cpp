@@ -1,5 +1,4 @@
 #include "Food.hpp"
-#include <SDL2/SDL.h>
 
 
 // Constructeur de la classe Food, initialise l'état de la nourriture Food类的构造函数，初始化食物状态

@@ -1,7 +1,7 @@
 #ifndef CASE_HPP
 #define CASE_HPP
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <vector>
 using namespace std;
 

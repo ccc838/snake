@@ -1,14 +1,14 @@
 #include "Snake.hpp"
-#include <SDL2/SDL.h>
+
 
 
 // Constructeur, initialise la position de la tête du serpent, sa vitesse et sa longueur 构造函数，初始化蛇的头部位置,速度和身体长度
 Snake::Snake(int size, int startX, int startY, int moveInterval)
     : m_vx(0), m_vy(0), m_lastMoveTime(SDL_GetTicks()), m_moveInterval(moveInterval) {
     // Initialisation du corps du serpent, longueur initiale de 3 初始化蛇的身体，初始长度为3
-    m_body.push_back(Case(size, startX, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50})); // Tête 头部
-    m_body.push_back(Case(size, startX - size, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50})); // Second segment 第二节身体
-    m_body.push_back(Case(size, startX - 2 * size, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50})); // Troisième segment 第三节身体
+    m_body.push_back(Case(size, startX, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (256)})); // Tête 头部
+    m_body.push_back(Case(size, startX - size, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (256)})); // Second segment 第二节身体
+    m_body.push_back(Case(size, startX - 2 * size, startY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (256)})); // Troisième segment 第三节身体
 }
 
 // Définit la direction de déplacement du serpent 设置蛇的移动方向
@@ -29,11 +29,11 @@ void Snake::update() {
         int newHeadY = m_body.front().getY() + m_vy;
 
         // Création d'un nouvel objet Case pour la tête 创建新的头部Case对象
-        Case newHead(m_body.front().getSize(), newHeadX, newHeadY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (206) + 50});
+        Case newHead(m_body.front().getSize(), newHeadX, newHeadY, {rand() % (256) , rand() % (256), rand() % (256), rand() % (256)});
         // Suppression de la dernière partie du corps, conservant la longueur du corps invariable 将新头部插入到身体的开始位置
         m_body.insert(m_body.begin(), newHead);
 
-        // 移除身体的最后部分，保持身体长度不变
+        // Supprimer la dernière partie du corps tout en maintenant la longueur du corps inchangée 移除身体的最后部分，保持身体长度不变
         m_body.pop_back();
 
         // Mise à jour de l'heure du dernier mouvement 更新上次移动时间
@@ -69,4 +69,14 @@ void Snake::grow() {
     Case tail = m_body.back();
     // Ajouter un nouveau segment à la queue du serpent 在蛇的尾部添加一个新的部分
     m_body.push_back(tail);
+}
+
+// Obtenir la vitesse du serpent 获得蛇的速度
+int Snake::getMoveInterval(){
+    return m_moveInterval;
+}
+
+// Définir la vitesse du serpent 设置蛇的速度
+void Snake::setMoveInterval(int moveInterval){
+    m_moveInterval = moveInterval;
 }

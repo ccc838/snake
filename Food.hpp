@@ -2,7 +2,6 @@
 #define FOOD_HPP
 
 #include "Case.hpp"
-#include <SDL.h>
 #include <vector>
 
 // La classe Food représente la nourriture dans le jeu Food类表示游戏中的食物

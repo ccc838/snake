@@ -4,7 +4,6 @@
 #include "Snake.hpp"
 #include "Food.hpp"
 #include "Exception.hpp"
-#include <SDL.h>
 #include <vector>
 
 // La classe Game représente la logique et l'état du jeu Game类表示游戏的逻辑和状态

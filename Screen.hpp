@@ -1,7 +1,7 @@
 #ifndef SCREEN_HPP
 #define SCREEN_HPP
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 // La classe Screen est responsable de la gestion de la fenêtre SDL et du renderer Screen类负责管理SDL窗口和渲染器
 class Screen {

@@ -1,13 +1,11 @@
 # Spécifier le compilateur 指定编译器
 CXX = g++
-# Chemin de la bibliothèque SDL SDL库的路径
-SDLDIR = SDL2-2.26.5-mingw32/x86_64-w64-mingw32
 # Drapeau du compilateur 编译器标志
-CXXFLAGS = -I $(SDLDIR)/include/SDL2  -L $(SDLDIR)/lib  -lmingw32 -lSDL2main -lSDL2  -O2
+CXXFLAGS = `sdl2-config --cflags --libs`
 
 
 # Cible par défaut 默认目标
-all: snake clean
+all: Snake Test clean
 
 # Dépendances et liens du programme principal 主程序的依赖和链接
 Snake: main.o Screen.o Case.o Food.o Snake.o Game.o Exception.o
